@@ -14,6 +14,8 @@ defmodule UrlShortener.Application do
       {Phoenix.PubSub, name: UrlShortener.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: UrlShortener.Finch},
+      # Start the metrics collector to handle redirect events
+      UrlShortener.MetricsCollector,
       # Start a worker by calling: UrlShortener.Worker.start_link(arg)
       # {UrlShortener.Worker, arg},
       # Start to serve requests, typically the last entry

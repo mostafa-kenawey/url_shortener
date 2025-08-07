@@ -1,0 +1,6 @@
+# Environment variables for url_shortener project
+# Run mix phx.gen.secret to get new secret
+export DATABASE_URL="postgres://postgres:postgres@localhost/url_shortener_dev"
+export SECRET_KEY_BASE=REPLACE-WITH-KEY
+export TEST_DATABASE_URL="postgres://postgres:postgres@localhost/url_shortener_test"
+export TEST_SECRET_KEY_BASE=REPLACE-WITH-KEY

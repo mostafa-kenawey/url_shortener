@@ -107,6 +107,31 @@ defmodule UrlShortenerWeb do
     end
   end
 
+  defp view_helpers do
+    quote do
+      use Phoenix.HTML
+      import Phoenix.View
+      import UrlShortenerWeb.ErrorHelpers
+      import UrlShortenerWeb.Gettext
+      alias UrlShortenerWeb.Router.Helpers, as: Routes
+    end
+  end
+
+  def view do
+    quote do
+      use Phoenix.View,
+        root: "lib/url_shortener_web/templates",
+        namespace: UrlShortenerWeb
+
+      # Import convenience functions from controllers
+      import Phoenix.Controller,
+        only: [get_flash: 1, get_flash: 2, view_module: 1, view_template: 1]
+
+      # Include shared imports and aliases for views
+      unquote(view_helpers())
+    end
+  end
+
   @doc """
   When used, dispatch to the appropriate controller/live_view/etc.
   """

@@ -45,7 +45,7 @@ defmodule UrlShortenerWeb.ConnCase do
   test context.
   """
   def register_and_log_in_admin(%{conn: conn}) do
-    admin = UrlShortener.AdminsFixtures.admin_fixture()
+    admin = UrlShortener.AdminFixtures.admin_fixture()
     %{conn: log_in_admin(conn, admin), admin: admin}
   end
 
@@ -55,7 +55,7 @@ defmodule UrlShortenerWeb.ConnCase do
   It returns an updated `conn`.
   """
   def log_in_admin(conn, admin) do
-    token = UrlShortener.Admins.generate_admin_session_token(admin)
+    token = UrlShortener.Admin.generate_admin_session_token(admin)
 
     conn
     |> Phoenix.ConnTest.init_test_session(%{})

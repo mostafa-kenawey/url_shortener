@@ -8,20 +8,20 @@ defmodule UrlShortenerWeb.AdminLoginLive do
         Log in to account
         <:subtitle>
           Don't have an account?
-          <.link navigate={~p"/admins/register"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/admin/register"} class="font-semibold text-brand hover:underline">
             Sign up
           </.link>
           for an account now.
         </:subtitle>
       </.header>
 
-      <.simple_form for={@form} id="login_form" action={~p"/admins/log_in"} phx-update="ignore">
+      <.simple_form for={@form} id="login_form" action={~p"/admin/log_in"} phx-update="ignore">
         <.input field={@form[:email]} type="email" label="Email" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
         <:actions>
           <.input field={@form[:remember_me]} type="checkbox" label="Keep me logged in" />
-          <.link href={~p"/admins/reset_password"} class="text-sm font-semibold">
+          <.link href={~p"/admin/reset_password"} class="text-sm font-semibold">
             Forgot your password?
           </.link>
         </:actions>

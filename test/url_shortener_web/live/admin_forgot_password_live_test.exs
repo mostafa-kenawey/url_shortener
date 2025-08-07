@@ -2,26 +2,26 @@ defmodule UrlShortenerWeb.AdminForgotPasswordLiveTest do
   use UrlShortenerWeb.ConnCase, async: true
 
   import Phoenix.LiveViewTest
-  import UrlShortener.AdminsFixtures
+  import UrlShortener.AdminFixtures
 
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin.AdminToken
   alias UrlShortener.Repo
 
   describe "Forgot password page" do
     test "renders email page", %{conn: conn} do
-      {:ok, lv, html} = live(conn, ~p"/admins/reset_password")
+      {:ok, lv, html} = live(conn, ~p"/admin/reset_password")
 
       assert html =~ "Forgot your password?"
-      assert has_element?(lv, ~s|a[href="#{~p"/admins/register"}"]|, "Register")
-      assert has_element?(lv, ~s|a[href="#{~p"/admins/log_in"}"]|, "Log in")
+      assert has_element?(lv, ~s|a[href="#{~p"/admin/register"}"]|, "Register")
+      assert has_element?(lv, ~s|a[href="#{~p"/admin/log_in"}"]|, "Log in")
     end
 
     test "redirects if already logged in", %{conn: conn} do
       result =
         conn
         |> log_in_admin(admin_fixture())
-        |> live(~p"/admins/reset_password")
-        |> follow_redirect(conn, ~p"/admins/dashboard")
+        |> live(~p"/admin/reset_password")
+        |> follow_redirect(conn, ~p"/admin/dashboard")
 
       assert {:ok, _conn} = result
     end
@@ -33,31 +33,31 @@ defmodule UrlShortenerWeb.AdminForgotPasswordLiveTest do
     end
 
     test "sends a new reset password token", %{conn: conn, admin: admin} do
-      {:ok, lv, _html} = live(conn, ~p"/admins/reset_password")
+      {:ok, lv, _html} = live(conn, ~p"/admin/reset_password")
 
       {:ok, conn} =
         lv
         |> form("#reset_password_form", admin: %{"email" => admin.email})
         |> render_submit()
-        |> follow_redirect(conn, "/admins/log_in")
+        |> follow_redirect(conn, "/admin/log_in")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
 
-      assert Repo.get_by!(Admins.AdminToken, admin_id: admin.id).context ==
+      assert Repo.get_by!(AdminToken, admin_id: admin.id).context ==
                "reset_password"
     end
 
     test "does not send reset password token if email is invalid", %{conn: conn} do
-      {:ok, lv, _html} = live(conn, ~p"/admins/reset_password")
+      {:ok, lv, _html} = live(conn, ~p"/admin/reset_password")
 
       {:ok, conn} =
         lv
         |> form("#reset_password_form", admin: %{"email" => "unknown@example.com"})
         |> render_submit()
-        |> follow_redirect(conn, "/admins/log_in")
+        |> follow_redirect(conn, "/admin/log_in")
 
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
-      assert Repo.all(Admins.AdminToken) == []
+      assert Repo.all(AdminToken) == []
     end
   end
 end

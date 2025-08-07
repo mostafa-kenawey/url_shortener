@@ -1,7 +1,7 @@
 defmodule UrlShortenerWeb.AdminSettingsLive do
   use UrlShortenerWeb, :live_view
 
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin
 
   def render(assigns) do
     ~H"""
@@ -38,7 +38,7 @@ defmodule UrlShortenerWeb.AdminSettingsLive do
         <.simple_form
           for={@password_form}
           id="password_form"
-          action={~p"/admins/log_in?_action=password_updated"}
+          action={~p"/admin/log_in?_action=password_updated"}
           method="post"
           phx-change="validate_password"
           phx-submit="update_password"
@@ -76,7 +76,7 @@ defmodule UrlShortenerWeb.AdminSettingsLive do
 
   def mount(%{"token" => token}, _session, socket) do
     socket =
-      case Admins.update_admin_email(socket.assigns.current_admin, token) do
+      case Admin.update_admin_email(socket.assigns.current_admin, token) do
         :ok ->
           put_flash(socket, :info, "Email changed successfully.")
 
@@ -84,13 +84,13 @@ defmodule UrlShortenerWeb.AdminSettingsLive do
           put_flash(socket, :error, "Email change link is invalid or it has expired.")
       end
 
-    {:ok, push_navigate(socket, to: ~p"/admins/settings")}
+    {:ok, push_navigate(socket, to: ~p"/admin/settings")}
   end
 
   def mount(_params, _session, socket) do
     admin = socket.assigns.current_admin
-    email_changeset = Admins.change_admin_email(admin)
-    password_changeset = Admins.change_admin_password(admin)
+    email_changeset = Admin.change_admin_email(admin)
+    password_changeset = Admin.change_admin_password(admin)
 
     socket =
       socket
@@ -105,11 +105,11 @@ defmodule UrlShortenerWeb.AdminSettingsLive do
   end
 
   def handle_event("validate_email", params, socket) do
-    %{"current_password" => password, "admin" => admin_params} = params
+    %{"current_password" => password, "account" => admin_params} = params
 
     email_form =
       socket.assigns.current_admin
-      |> Admins.change_admin_email(admin_params)
+      |> Admin.change_admin_email(admin_params)
       |> Map.put(:action, :validate)
       |> to_form()
 
@@ -117,15 +117,15 @@ defmodule UrlShortenerWeb.AdminSettingsLive do
   end
 
   def handle_event("update_email", params, socket) do
-    %{"current_password" => password, "admin" => admin_params} = params
+    %{"current_password" => password, "account" => admin_params} = params
     admin = socket.assigns.current_admin
 
-    case Admins.apply_admin_email(admin, password, admin_params) do
+    case Admin.apply_admin_email(admin, password, admin_params) do
       {:ok, applied_admin} ->
-        Admins.deliver_admin_update_email_instructions(
+        Admin.deliver_admin_update_email_instructions(
           applied_admin,
           admin.email,
-          &url(~p"/admins/settings/confirm_email/#{&1}")
+          &url(~p"/admin/settings/confirm_email/#{&1}")
         )
 
         info = "A link to confirm your email change has been sent to the new address."
@@ -137,11 +137,11 @@ defmodule UrlShortenerWeb.AdminSettingsLive do
   end
 
   def handle_event("validate_password", params, socket) do
-    %{"current_password" => password, "admin" => admin_params} = params
+    %{"current_password" => password, "account" => admin_params} = params
 
     password_form =
       socket.assigns.current_admin
-      |> Admins.change_admin_password(admin_params)
+      |> Admin.change_admin_password(admin_params)
       |> Map.put(:action, :validate)
       |> to_form()
 
@@ -149,14 +149,14 @@ defmodule UrlShortenerWeb.AdminSettingsLive do
   end
 
   def handle_event("update_password", params, socket) do
-    %{"current_password" => password, "admin" => admin_params} = params
+    %{"current_password" => password, "account" => admin_params} = params
     admin = socket.assigns.current_admin
 
-    case Admins.update_admin_password(admin, password, admin_params) do
+    case Admin.update_admin_password(admin, password, admin_params) do
       {:ok, admin} ->
         password_form =
           admin
-          |> Admins.change_admin_password(admin_params)
+          |> Admin.change_admin_password(admin_params)
           |> to_form()
 
         {:noreply, assign(socket, trigger_submit: true, password_form: password_form)}

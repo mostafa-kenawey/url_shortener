@@ -19,7 +19,7 @@
         </li>
         <li>
           <.link
-            href={~p"/admins/dashboard"}
+            href={~p"/admin/dashboard"}
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
             Dashboard
@@ -27,7 +27,15 @@
         </li>
         <li>
           <.link
-            href={~p"/admins/settings"}
+            href={~p"/admin/links"}
+            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
+          >
+            Links
+          </.link>
+        </li>
+        <li>
+          <.link
+            href={~p"/admin/settings"}
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
             Settings
@@ -35,7 +43,7 @@
         </li>
         <li>
           <.link
-            href={~p"/admins/log_out"}
+            href={~p"/admin/log_out"}
             method="delete"
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
@@ -45,7 +53,7 @@
       <% else %>
         <li>
           <.link
-            href={~p"/admins/register"}
+            href={~p"/admin/register"}
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
             Register
@@ -53,7 +61,7 @@
         </li>
         <li>
           <.link
-            href={~p"/admins/log_in"}
+            href={~p"/admin/log_in"}
             class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
           >
             Log in

@@ -1,7 +1,7 @@
 defmodule UrlShortenerWeb.AdminConfirmationInstructionsLive do
   use UrlShortenerWeb, :live_view
 
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin
 
   def render(assigns) do
     ~H"""
@@ -21,8 +21,8 @@ defmodule UrlShortenerWeb.AdminConfirmationInstructionsLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/admins/register"}>Register</.link>
-        | <.link href={~p"/admins/log_in"}>Log in</.link>
+        <.link href={~p"/admin/register"}>Register</.link>
+        | <.link href={~p"/admin/log_in"}>Log in</.link>
       </p>
     </div>
     """
@@ -33,10 +33,10 @@ defmodule UrlShortenerWeb.AdminConfirmationInstructionsLive do
   end
 
   def handle_event("send_instructions", %{"admin" => %{"email" => email}}, socket) do
-    if admin = Admins.get_admin_by_email(email) do
-      Admins.deliver_admin_confirmation_instructions(
+    if admin = Admin.get_admin_by_email(email) do
+      Admin.deliver_admin_confirmation_instructions(
         admin,
-        &url(~p"/admins/confirm/#{&1}")
+        &url(~p"/admin/confirm/#{&1}")
       )
     end
 
@@ -46,6 +46,6 @@ defmodule UrlShortenerWeb.AdminConfirmationInstructionsLive do
     {:noreply,
      socket
      |> put_flash(:info, info)
-     |> redirect(to: ~p"/admins/log_in")}
+     |> redirect(to: ~p"/admin/log_in")}
   end
 end

@@ -1,7 +1,7 @@
 defmodule UrlShortenerWeb.AdminConfirmationLive do
   use UrlShortenerWeb, :live_view
 
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin
 
   def render(%{live_action: :edit} = assigns) do
     ~H"""
@@ -16,8 +16,8 @@ defmodule UrlShortenerWeb.AdminConfirmationLive do
       </.simple_form>
 
       <p class="text-center mt-4">
-        <.link href={~p"/admins/register"}>Register</.link>
-        | <.link href={~p"/admins/log_in"}>Log in</.link>
+        <.link href={~p"/admin/register"}>Register</.link>
+        | <.link href={~p"/admin/log_in"}>Log in</.link>
       </p>
     </div>
     """
@@ -31,12 +31,12 @@ defmodule UrlShortenerWeb.AdminConfirmationLive do
   # Do not log in the admin after confirmation to avoid a
   # leaked token giving the admin access to the account.
   def handle_event("confirm_account", %{"admin" => %{"token" => token}}, socket) do
-    case Admins.confirm_admin(token) do
+    case Admin.confirm_admin(token) do
       {:ok, _} ->
         {:noreply,
          socket
          |> put_flash(:info, "Admin confirmed successfully.")
-         |> redirect(to: ~p"/admins/log_in")}
+         |> redirect(to: ~p"/admin/log_in")}
 
       :error ->
         # If there is a current admin and the account was already confirmed,
@@ -45,13 +45,13 @@ defmodule UrlShortenerWeb.AdminConfirmationLive do
         # a warning message.
         case socket.assigns do
           %{current_admin: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
-            {:noreply, redirect(socket, to: ~p"/admins/log_in")}
+            {:noreply, redirect(socket, to: ~p"/admin/log_in")}
 
           %{} ->
             {:noreply,
              socket
              |> put_flash(:error, "Admin confirmation link is invalid or it has expired.")
-             |> redirect(to: ~p"/admins/log_in")}
+             |> redirect(to: ~p"/admin/log_in")}
         end
     end
   end

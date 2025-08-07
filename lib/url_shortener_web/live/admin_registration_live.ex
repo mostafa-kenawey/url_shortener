@@ -1,8 +1,8 @@
 defmodule UrlShortenerWeb.AdminRegistrationLive do
   use UrlShortenerWeb, :live_view
 
-  alias UrlShortener.Admins
-  alias UrlShortener.Admins.Admin
+  alias UrlShortener.Admin
+  alias UrlShortener.Admin.Account
 
   def render(assigns) do
     ~H"""
@@ -11,7 +11,7 @@ defmodule UrlShortenerWeb.AdminRegistrationLive do
         Register for an account
         <:subtitle>
           Already registered?
-          <.link navigate={~p"/admins/log_in"} class="font-semibold text-brand hover:underline">
+          <.link navigate={~p"/admin/log_in"} class="font-semibold text-brand hover:underline">
             Log in
           </.link>
           to your account now.
@@ -24,7 +24,7 @@ defmodule UrlShortenerWeb.AdminRegistrationLive do
         phx-submit="save"
         phx-change="validate"
         phx-trigger-action={@trigger_submit}
-        action={~p"/admins/log_in?_action=registered"}
+        action={~p"/admin/log_in?_action=registered"}
         method="post"
       >
         <.error :if={@check_errors}>
@@ -44,7 +44,7 @@ defmodule UrlShortenerWeb.AdminRegistrationLive do
   end
 
   def mount(_params, _session, socket) do
-    changeset = Admins.change_admin_registration(%Admin{})
+    changeset = Admin.change_admin_registration(%Account{})
 
     socket =
       socket
@@ -55,15 +55,15 @@ defmodule UrlShortenerWeb.AdminRegistrationLive do
   end
 
   def handle_event("save", %{"admin" => admin_params}, socket) do
-    case Admins.register_admin(admin_params) do
+    case Admin.register_admin(admin_params) do
       {:ok, admin} ->
         {:ok, _} =
-          Admins.deliver_admin_confirmation_instructions(
+          Admin.deliver_admin_confirmation_instructions(
             admin,
-            &url(~p"/admins/confirm/#{&1}")
+            &url(~p"/admin/confirm/#{&1}")
           )
 
-        changeset = Admins.change_admin_registration(admin)
+        changeset = Admin.change_admin_registration(admin)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -72,7 +72,7 @@ defmodule UrlShortenerWeb.AdminRegistrationLive do
   end
 
   def handle_event("validate", %{"admin" => admin_params}, socket) do
-    changeset = Admins.change_admin_registration(%Admin{}, admin_params)
+    changeset = Admin.change_admin_registration(%Account{}, admin_params)
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 

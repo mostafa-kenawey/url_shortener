@@ -2,9 +2,9 @@ defmodule UrlShortenerWeb.AdminAuthTest do
   use UrlShortenerWeb.ConnCase, async: true
 
   alias Phoenix.LiveView
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin
   alias UrlShortenerWeb.AdminAuth
-  import UrlShortener.AdminsFixtures
+  import UrlShortener.AdminFixtures
 
   @remember_me_cookie "_url_shortener_web_admin_remember_me"
 
@@ -22,8 +22,8 @@ defmodule UrlShortenerWeb.AdminAuthTest do
       conn = AdminAuth.log_in_admin(conn, admin)
       assert token = get_session(conn, :admin_token)
       assert get_session(conn, :live_socket_id) == "admins_sessions:#{Base.url_encode64(token)}"
-      assert redirected_to(conn) == ~p"/admins/dashboard"
-      assert Admins.get_admin_by_session_token(token)
+      assert redirected_to(conn) == ~p"/admin/dashboard"
+      assert Admin.get_admin_by_session_token(token)
     end
 
     test "clears everything previously stored in the session", %{conn: conn, admin: admin} do
@@ -48,7 +48,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
 
   describe "logout_admin/1" do
     test "erases session and cookies", %{conn: conn, admin: admin} do
-      admin_token = Admins.generate_admin_session_token(admin)
+      admin_token = Admin.generate_admin_session_token(admin)
 
       conn =
         conn
@@ -61,7 +61,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
       refute conn.cookies[@remember_me_cookie]
       assert %{max_age: 0} = conn.resp_cookies[@remember_me_cookie]
       assert redirected_to(conn) == ~p"/"
-      refute Admins.get_admin_by_session_token(admin_token)
+      refute Admin.get_admin_by_session_token(admin_token)
     end
 
     test "broadcasts to the given live_socket_id", %{conn: conn} do
@@ -85,7 +85,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
 
   describe "fetch_current_admin/2" do
     test "authenticates admin from session", %{conn: conn, admin: admin} do
-      admin_token = Admins.generate_admin_session_token(admin)
+      admin_token = Admin.generate_admin_session_token(admin)
       conn = conn |> put_session(:admin_token, admin_token) |> AdminAuth.fetch_current_admin([])
       assert conn.assigns.current_admin.id == admin.id
     end
@@ -110,7 +110,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
     end
 
     test "does not authenticate if data is missing", %{conn: conn, admin: admin} do
-      _ = Admins.generate_admin_session_token(admin)
+      _ = Admin.generate_admin_session_token(admin)
       conn = AdminAuth.fetch_current_admin(conn, [])
       refute get_session(conn, :admin_token)
       refute conn.assigns.current_admin
@@ -119,7 +119,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
 
   describe "on_mount :mount_current_admin" do
     test "assigns current_admin based on a valid admin_token", %{conn: conn, admin: admin} do
-      admin_token = Admins.generate_admin_session_token(admin)
+      admin_token = Admin.generate_admin_session_token(admin)
       session = conn |> put_session(:admin_token, admin_token) |> get_session()
 
       {:cont, updated_socket} =
@@ -150,7 +150,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
 
   describe "on_mount :ensure_authenticated" do
     test "authenticates current_admin based on a valid admin_token", %{conn: conn, admin: admin} do
-      admin_token = Admins.generate_admin_session_token(admin)
+      admin_token = Admin.generate_admin_session_token(admin)
       session = conn |> put_session(:admin_token, admin_token) |> get_session()
 
       {:cont, updated_socket} =
@@ -187,7 +187,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
 
   describe "on_mount :redirect_if_admin_is_authenticated" do
     test "redirects if there is an authenticated  admin ", %{conn: conn, admin: admin} do
-      admin_token = Admins.generate_admin_session_token(admin)
+      admin_token = Admin.generate_admin_session_token(admin)
       session = conn |> put_session(:admin_token, admin_token) |> get_session()
 
       assert {:halt, _updated_socket} =
@@ -216,7 +216,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
     test "redirects if admin is authenticated", %{conn: conn, admin: admin} do
       conn = conn |> assign(:current_admin, admin) |> AdminAuth.redirect_if_admin_is_authenticated([])
       assert conn.halted
-      assert redirected_to(conn) == ~p"/admins/dashboard"
+      assert redirected_to(conn) == ~p"/admin/dashboard"
     end
 
     test "does not redirect if admin is not authenticated", %{conn: conn} do
@@ -231,7 +231,7 @@ defmodule UrlShortenerWeb.AdminAuthTest do
       conn = conn |> fetch_flash() |> AdminAuth.require_authenticated_admin([])
       assert conn.halted
 
-      assert redirected_to(conn) == ~p"/admins/log_in"
+      assert redirected_to(conn) == ~p"/admin/log_in"
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "You must log in to access this page."

@@ -1,7 +1,7 @@
 defmodule UrlShortenerWeb.AdminResetPasswordLive do
   use UrlShortenerWeb, :live_view
 
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin
 
   def render(assigns) do
     ~H"""
@@ -31,8 +31,8 @@ defmodule UrlShortenerWeb.AdminResetPasswordLive do
       </.simple_form>
 
       <p class="text-center text-sm mt-4">
-        <.link href={~p"/admins/register"}>Register</.link>
-        | <.link href={~p"/admins/log_in"}>Log in</.link>
+        <.link href={~p"/admin/register"}>Register</.link>
+        | <.link href={~p"/admin/log_in"}>Log in</.link>
       </p>
     </div>
     """
@@ -44,7 +44,7 @@ defmodule UrlShortenerWeb.AdminResetPasswordLive do
     form_source =
       case socket.assigns do
         %{admin: admin} ->
-          Admins.change_admin_password(admin)
+          Admin.change_admin_password(admin)
 
         _ ->
           %{}
@@ -56,12 +56,12 @@ defmodule UrlShortenerWeb.AdminResetPasswordLive do
   # Do not log in the admin after reset password to avoid a
   # leaked token giving the admin access to the account.
   def handle_event("reset_password", %{"admin" => admin_params}, socket) do
-    case Admins.reset_admin_password(socket.assigns.admin, admin_params) do
+    case Admin.reset_admin_password(socket.assigns.admin, admin_params) do
       {:ok, _} ->
         {:noreply,
          socket
          |> put_flash(:info, "Password reset successfully.")
-         |> redirect(to: ~p"/admins/log_in")}
+         |> redirect(to: ~p"/admin/log_in")}
 
       {:error, changeset} ->
         {:noreply, assign_form(socket, Map.put(changeset, :action, :insert))}
@@ -69,17 +69,17 @@ defmodule UrlShortenerWeb.AdminResetPasswordLive do
   end
 
   def handle_event("validate", %{"admin" => admin_params}, socket) do
-    changeset = Admins.change_admin_password(socket.assigns.admin, admin_params)
+    changeset = Admin.change_admin_password(socket.assigns.admin, admin_params)
     {:noreply, assign_form(socket, Map.put(changeset, :action, :validate))}
   end
 
   defp assign_admin_and_token(socket, %{"token" => token}) do
-    if admin = Admins.get_admin_by_reset_password_token(token) do
+    if admin = Admin.get_admin_by_reset_password_token(token) do
       assign(socket, admin: admin, token: token)
     else
       socket
       |> put_flash(:error, "Reset password link is invalid or it has expired.")
-      |> redirect(to: ~p"/admins/log_in")
+      |> redirect(to: ~p"/admin/log_in")
     end
   end
 

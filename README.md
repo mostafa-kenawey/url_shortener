@@ -21,7 +21,7 @@ A URL shortening service with real-time analytics dashboard built with Elixir, P
 
 #### Clone the repo
 
-* Run `git clone` to clone the repo from github
+* Run `git clone git@github.com:mostafa-kenawey/url_shortener.git` to clone the repo from github
 
 #### Environment Setup
 
@@ -50,6 +50,15 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 In development mode, you can preview sent emails by visiting:
 
-[http://localhost:4000/dev/mailbox](http://localhost:4000/dev/mailbox)
+* [http://localhost:4000/dev/mailbox](http://localhost:4000/dev/mailbox)
 
 This allows you to test email content (like confirmation links) without actually sending them.
+
+
+### LiveDashboard
+
+Phoenix LiveDashboard is available in development mode at:
+
+* [http://localhost:4000/dev/dashboard/home](http://localhost:4000/dev/dashboard/home)
+
+It provides insights into application performance, system metrics, and more.

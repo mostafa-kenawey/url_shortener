@@ -1,7 +1,7 @@
 defmodule UrlShortenerWeb.AdminSessionController do
   use UrlShortenerWeb, :controller
 
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin
   alias UrlShortenerWeb.AdminAuth
 
   def create(conn, %{"_action" => "registered"} = params) do
@@ -10,7 +10,7 @@ defmodule UrlShortenerWeb.AdminSessionController do
 
   def create(conn, %{"_action" => "password_updated"} = params) do
     conn
-    |> put_session(:admin_return_to, ~p"/admins/dashboard")
+    |> put_session(:admin_return_to, ~p"/admin/dashboard")
     |> create(params, "Password updated successfully!")
   end
 
@@ -19,9 +19,17 @@ defmodule UrlShortenerWeb.AdminSessionController do
   end
 
   defp create(conn, %{"admin" => admin_params}, info) do
+    handle_login(conn, admin_params, info)
+  end
+
+  defp create(conn, %{"account" => admin_params}, info) do
+    handle_login(conn, admin_params, info)
+  end
+
+  defp handle_login(conn, admin_params, info) do
     %{"email" => email, "password" => password} = admin_params
 
-    if admin = Admins.get_admin_by_email_and_password(email, password) do
+    if admin = Admin.get_admin_by_email_and_password(email, password) do
       conn
       |> put_flash(:info, info)
       |> AdminAuth.log_in_admin(admin, admin_params)
@@ -30,7 +38,7 @@ defmodule UrlShortenerWeb.AdminSessionController do
       conn
       |> put_flash(:error, "Invalid email or password")
       |> put_flash(:email, String.slice(email, 0, 160))
-      |> redirect(to: ~p"/admins/log_in")
+      |> redirect(to: ~p"/admin/log_in")
     end
   end
 

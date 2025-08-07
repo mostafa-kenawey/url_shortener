@@ -4,7 +4,7 @@ defmodule UrlShortenerWeb.AdminAuth do
   import Plug.Conn
   import Phoenix.Controller
 
-  alias UrlShortener.Admins
+  alias UrlShortener.Admin
 
   # Make the remember me cookie valid for 60 days.
   # If you want bump or reduce this value, also change
@@ -26,7 +26,7 @@ defmodule UrlShortenerWeb.AdminAuth do
   if you are not using LiveView.
   """
   def log_in_admin(conn, admin, params \\ %{}) do
-    token = Admins.generate_admin_session_token(admin)
+    token = Admin.generate_admin_session_token(admin)
     admin_return_to = get_session(conn, :admin_return_to)
 
     conn
@@ -74,7 +74,7 @@ defmodule UrlShortenerWeb.AdminAuth do
   """
   def log_out_admin(conn) do
     admin_token = get_session(conn, :admin_token)
-    admin_token && Admins.delete_admin_session_token(admin_token)
+    admin_token && Admin.delete_admin_session_token(admin_token)
 
     if live_socket_id = get_session(conn, :live_socket_id) do
       UrlShortenerWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
@@ -92,7 +92,7 @@ defmodule UrlShortenerWeb.AdminAuth do
   """
   def fetch_current_admin(conn, _opts) do
     {admin_token, conn} = ensure_admin_token(conn)
-    admin = admin_token && Admins.get_admin_by_session_token(admin_token)
+    admin = admin_token && Admin.get_admin_by_session_token(admin_token)
     assign(conn, :current_admin, admin)
   end
 
@@ -158,7 +158,7 @@ defmodule UrlShortenerWeb.AdminAuth do
       socket =
         socket
         |> Phoenix.LiveView.put_flash(:error, "You must log in to access this page.")
-        |> Phoenix.LiveView.redirect(to: ~p"/admins/log_in")
+        |> Phoenix.LiveView.redirect(to: ~p"/admin/log_in")
 
       {:halt, socket}
     end
@@ -177,7 +177,7 @@ defmodule UrlShortenerWeb.AdminAuth do
   defp mount_current_admin(socket, session) do
     Phoenix.Component.assign_new(socket, :current_admin, fn ->
       if admin_token = session["admin_token"] do
-        Admins.get_admin_by_session_token(admin_token)
+        Admin.get_admin_by_session_token(admin_token)
       end
     end)
   end
@@ -208,7 +208,7 @@ defmodule UrlShortenerWeb.AdminAuth do
       conn
       |> put_flash(:error, "You must log in to access this page.")
       |> maybe_store_return_to()
-      |> redirect(to: ~p"/admins/log_in")
+      |> redirect(to: ~p"/admin/log_in")
       |> halt()
     end
   end
@@ -225,5 +225,5 @@ defmodule UrlShortenerWeb.AdminAuth do
 
   defp maybe_store_return_to(conn), do: conn
 
-  defp signed_in_path(_conn), do: ~p"/admins/dashboard"
+  defp signed_in_path(_conn), do: ~p"/admin/dashboard"
 end

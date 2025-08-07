@@ -21,6 +21,7 @@ defmodule UrlShortenerWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/:slug", RedirectController, :show
   end
 
   # Other scopes may use custom stacks.
@@ -52,13 +53,13 @@ defmodule UrlShortenerWeb.Router do
 
     live_session :redirect_if_admin_is_authenticated,
       on_mount: [{UrlShortenerWeb.AdminAuth, :redirect_if_admin_is_authenticated}] do
-      live "/admins/register", AdminRegistrationLive, :new
-      live "/admins/log_in", AdminLoginLive, :new
-      live "/admins/reset_password", AdminForgotPasswordLive, :new
-      live "/admins/reset_password/:token", AdminResetPasswordLive, :edit
+      live "/admin/register", AdminRegistrationLive, :new
+      live "/admin/log_in", AdminLoginLive, :new
+      live "/admin/reset_password", AdminForgotPasswordLive, :new
+      live "/admin/reset_password/:token", AdminResetPasswordLive, :edit
     end
 
-    post "/admins/log_in", AdminSessionController, :create
+    post "/admin/log_in", AdminSessionController, :create
   end
 
   scope "/", UrlShortenerWeb do
@@ -66,22 +67,29 @@ defmodule UrlShortenerWeb.Router do
 
     live_session :require_authenticated_admin,
       on_mount: [{UrlShortenerWeb.AdminAuth, :ensure_authenticated}] do
-      live "/admins/settings", AdminSettingsLive, :edit
-      live "/admins/settings/confirm_email/:token", AdminSettingsLive, :confirm_email
+      live "/admin/settings", AdminSettingsLive, :edit
+      live "/admin/settings/confirm_email/:token", AdminSettingsLive, :confirm_email
 
-      live "/admins/dashboard", AdminDashboardLive
+      live "/admin/dashboard", AdminDashboardLive
+
+      live "/admin/links", Admin.LinkLive.Index, :index
+      live "/admin/links/new", Admin.LinkLive.Index, :new
+      live "/admin/links/:id/edit", Admin.LinkLive.Index, :edit
+
+      live "/admin/links/:id", Admin.LinkLive.Show, :show
+      live "/admin/links/:id/show/edit", Admin.LinkLive.Show, :edit
     end
   end
 
   scope "/", UrlShortenerWeb do
     pipe_through [:browser]
 
-    delete "/admins/log_out", AdminSessionController, :delete
+    delete "/admin/log_out", AdminSessionController, :delete
 
     live_session :current_admin,
       on_mount: [{UrlShortenerWeb.AdminAuth, :mount_current_admin}] do
-      live "/admins/confirm/:token", AdminConfirmationLive, :edit
-      live "/admins/confirm", AdminConfirmationInstructionsLive, :new
+      live "/admin/confirm/:token", AdminConfirmationLive, :edit
+      live "/admin/confirm", AdminConfirmationInstructionsLive, :new
     end
   end
 end

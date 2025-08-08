@@ -9,7 +9,8 @@ import Config
 
 config :url_shortener,
   ecto_repos: [UrlShortener.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  environment: config_env()
 
 # Configures the endpoint
 config :url_shortener, UrlShortenerWeb.Endpoint,

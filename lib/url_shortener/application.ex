@@ -5,6 +5,9 @@ defmodule UrlShortener.Application do
 
   use Application
 
+  # Get environment at compile time
+  @environment Application.compile_env(:url_shortener, :environment, :prod)
+
   @impl true
   def start(_type, _args) do
     base_children = [
@@ -19,7 +22,8 @@ defmodule UrlShortener.Application do
     ]
 
     # Add MetricsCollector only in non-test environments
-    children = case Mix.env() do
+    # Use compile-time env since Mix.env() is not available in releases
+    children = case @environment do
       :test -> base_children
       _ -> base_children ++ [UrlShortener.MetricsCollector]
     end

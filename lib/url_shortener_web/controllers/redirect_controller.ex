@@ -4,7 +4,7 @@ defmodule UrlShortenerWeb.RedirectController do
 
   alias UrlShortener.{Links, Cache}
 
-  @rate_limit_requests 100  # Max requests per minute
+  @rate_limit_requests 10  # Max requests per minute
   @rate_limit_window 60     # 60 seconds window
 
   def show(conn, %{"slug" => slug}) do
@@ -41,7 +41,7 @@ defmodule UrlShortenerWeb.RedirectController do
           link ->
             # Cache the result for future requests
             Cache.put_slug(slug, link.original_url)
-            broadcast_and_redirect(conn, slug, link.original_url, ip, 
+            broadcast_and_redirect(conn, slug, link.original_url, ip,
               cache_hit: false, link_id: link.id)
         end
     end
@@ -49,7 +49,7 @@ defmodule UrlShortenerWeb.RedirectController do
 
   defp broadcast_and_redirect(conn, _slug, original_url, ip, opts) do
     user_agent = get_user_agent(conn)
-    
+
     # Only broadcast if we have link_id (from DB query, not cache)
     if link_id = opts[:link_id] do
       Phoenix.PubSub.broadcast(

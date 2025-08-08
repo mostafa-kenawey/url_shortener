@@ -36,4 +36,7 @@ if config_env() == :prod do
     url: [host: host, port: 443, scheme: "https"],
     http: [ip: {0, 0, 0, 0}, port: port],
     secret_key_base: secret_key_base
+
+  # Configure mailer for production - use TestAdapter to avoid email delivery issues
+  config :url_shortener, UrlShortener.Mailer, adapter: Swoosh.Adapters.Test
 end

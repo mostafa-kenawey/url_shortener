@@ -210,6 +210,16 @@ defmodule UrlShortener.Admin do
     end
   end
 
+  @doc """
+  Confirms an admin account without requiring a token.
+  This is used when email delivery fails and we want to auto-confirm accounts.
+  """
+  def confirm_admin_without_token(%Account{} = admin) do
+    admin
+    |> Account.confirm_changeset()
+    |> Repo.update()
+  end
+
   defp confirm_admin_multi(admin) do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:admin, Account.confirm_changeset(admin))

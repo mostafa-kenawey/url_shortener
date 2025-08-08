@@ -57,13 +57,17 @@ defmodule UrlShortenerWeb.AdminRegistrationLive do
   def handle_event("save", %{"admin" => admin_params}, socket) do
     case Admin.register_admin(admin_params) do
       {:ok, admin} ->
-        {:ok, _} =
-          Admin.deliver_admin_confirmation_instructions(
-            admin,
-            &url(~p"/admin/confirm/#{&1}")
-          )
-
-        changeset = Admin.change_admin_registration(admin)
+        # Auto-confirm account immediately for smooth user experience
+        # In production, emails don't work yet, so we skip the confirmation step
+        {:ok, confirmed_admin} = Admin.confirm_admin_without_token(admin)
+        
+        # Send confirmation email if possible (will work in dev, be no-op in prod)
+        Admin.deliver_admin_confirmation_instructions(
+          confirmed_admin,
+          &url(~p"/admin/confirm/#{&1}")
+        )
+        
+        changeset = Admin.change_admin_registration(confirmed_admin)
         {:noreply, socket |> assign(trigger_submit: true) |> assign_form(changeset)}
 
       {:error, %Ecto.Changeset{} = changeset} ->

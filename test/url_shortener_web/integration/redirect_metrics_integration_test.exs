@@ -17,6 +17,9 @@ defmodule UrlShortenerWeb.RedirectMetricsIntegrationTest do
       # Subscribe to PubSub events to manually handle metrics in test
       Phoenix.PubSub.subscribe(UrlShortener.PubSub, "redirect_events")
       
+      # Clear cache to force database lookup and trigger PubSub broadcast
+      UrlShortener.Cache.clear()
+      
       # Make a request to the redirect endpoint
       conn = get(conn, ~p"/#{link.slug}")
       

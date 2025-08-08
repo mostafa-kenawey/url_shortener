@@ -2,13 +2,64 @@ defmodule UrlShortener.Admin do
   import Ecto.Query, warn: false
   alias UrlShortener.Repo
   alias UrlShortener.Admin.{Account, AdminToken, AdminNotifier, Link}
+  alias UrlShortener.Cache
 
-  # Link functions
-  def list_links, do: Repo.all(Link)
+  # Link functions with caching
+  def list_links do
+    case Cache.get_analytics("all_links") do
+      {:ok, links} -> links
+      {:error, :not_found} ->
+        links = Repo.all(Link)
+        Cache.put_analytics("all_links", links, :timer.minutes(5))
+        links
+    end
+  end
+
   def get_link!(id), do: Repo.get!(Link, id)
-  def create_link(attrs \\ %{}), do: %Link{} |> Link.changeset(attrs) |> Repo.insert()
-  def update_link(%Link{} = link, attrs), do: link |> Link.changeset(attrs) |> Repo.update()
-  def delete_link(%Link{} = link), do: Repo.delete(link)
+  
+  def create_link(attrs \\ %{}) do
+    case %Link{} |> Link.changeset(attrs) |> Repo.insert() do
+      {:ok, link} = result ->
+        # Cache the slug -> URL mapping
+        Cache.put_slug(link.slug, link.original_url)
+        # Invalidate the all_links cache
+        Cache.delete_analytics("all_links")
+        result
+      error -> error
+    end
+  end
+  
+  def update_link(%Link{} = link, attrs) do
+    old_slug = link.slug
+    case link |> Link.changeset(attrs) |> Repo.update() do
+      {:ok, updated_link} = result ->
+        # Update cache if slug changed
+        if updated_link.slug != old_slug do
+          Cache.delete_slug(old_slug)
+          Cache.put_slug(updated_link.slug, updated_link.original_url)
+        else
+          # Update existing cache entry
+          Cache.put_slug(updated_link.slug, updated_link.original_url)
+        end
+        # Invalidate the all_links cache
+        Cache.delete_analytics("all_links")
+        result
+      error -> error
+    end
+  end
+  
+  def delete_link(%Link{} = link) do
+    case Repo.delete(link) do
+      {:ok, deleted_link} = result ->
+        # Remove from cache
+        Cache.delete_slug(deleted_link.slug)
+        # Invalidate the all_links cache
+        Cache.delete_analytics("all_links")
+        result
+      error -> error
+    end
+  end
+  
   def change_link(%Link{} = link, attrs \\ %{}), do: Link.changeset(link, attrs)
 
   # Admin account functions

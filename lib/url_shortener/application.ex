@@ -13,7 +13,9 @@ defmodule UrlShortener.Application do
       {DNSCluster, query: Application.get_env(:url_shortener, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: UrlShortener.PubSub},
       # Start the Finch HTTP client for sending emails
-      {Finch, name: UrlShortener.Finch}
+      {Finch, name: UrlShortener.Finch},
+      # Start the cache
+      UrlShortener.Cache
     ]
 
     # Add MetricsCollector only in non-test environments

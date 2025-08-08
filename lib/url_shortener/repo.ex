@@ -1,4 +1,13 @@
 defmodule UrlShortener.Repo do
+  @moduledoc """
+  Database repository for UrlShortener application.
+
+  This module configures the Ecto repository with PostgreSQL adapter and
+  custom connection pool settings optimized for performance:
+  - Increased pool size for better concurrency (15 connections)
+  - Configured queue timeouts and intervals for optimal request handling
+  - Database connection and query management
+  """
   use Ecto.Repo,
     otp_app: :url_shortener,
     adapter: Ecto.Adapters.Postgres

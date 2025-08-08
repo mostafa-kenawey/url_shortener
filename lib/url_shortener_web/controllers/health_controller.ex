@@ -1,4 +1,15 @@
 defmodule UrlShortenerWeb.HealthController do
+  @moduledoc """
+  Health check endpoint for monitoring and load balancer health checks.
+
+  Provides a simple health check that verifies:
+  - Application is running and responding
+  - Database connectivity is working
+
+  Returns appropriate HTTP status codes:
+  - 200 OK when all systems are healthy
+  - 503 Service Unavailable when there are issues
+  """
   use UrlShortenerWeb, :controller
 
   def check(conn, _params) do

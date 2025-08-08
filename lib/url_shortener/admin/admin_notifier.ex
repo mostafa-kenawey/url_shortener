@@ -1,4 +1,15 @@
 defmodule UrlShortener.Admin.AdminNotifier do
+  @moduledoc """
+  Email notification service for admin authentication workflows.
+
+  This module handles sending various types of authentication emails to admin users including:
+  - Account confirmation emails with verification links
+  - Password reset instructions
+  - Email change confirmation notifications
+
+  All emails are sent using the configured mailer service and include appropriate
+  links and instructions for the user to complete their authentication workflow.
+  """
   import Swoosh.Email
 
   alias UrlShortener.Mailer

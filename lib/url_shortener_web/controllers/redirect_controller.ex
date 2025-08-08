@@ -1,4 +1,18 @@
 defmodule UrlShortenerWeb.RedirectController do
+  @moduledoc """
+  Controller responsible for handling URL redirects from shortened links.
+
+  This controller:
+  - Implements rate limiting to prevent abuse (10 requests per minute per IP)
+  - Uses caching for fast slug-to-URL lookups
+  - Falls back to database queries for cache misses
+  - Broadcasts redirect events for analytics tracking
+  - Handles IP extraction from headers for load balancer compatibility
+  - Tracks user agents and other metadata for analytics
+
+  The redirect process is optimized for performance with Redis caching while
+  maintaining accurate analytics through PubSub event broadcasting.
+  """
   use UrlShortenerWeb, :controller
   require Logger
 

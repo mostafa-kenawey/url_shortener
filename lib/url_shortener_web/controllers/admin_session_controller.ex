@@ -1,4 +1,17 @@
 defmodule UrlShortenerWeb.AdminSessionController do
+  @moduledoc """
+  Controller for handling admin authentication sessions (login/logout).
+
+  This controller manages:
+  - Admin login with email and password authentication
+  - Different login contexts (new registration, password update, regular login)
+  - Session creation and management
+  - Secure logout functionality
+  - Protection against user enumeration attacks
+
+  The controller works in conjunction with AdminAuth for session management
+  and provides appropriate feedback messages for different login scenarios.
+  """
   use UrlShortenerWeb, :controller
 
   alias UrlShortener.Admin

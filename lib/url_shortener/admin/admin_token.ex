@@ -1,4 +1,17 @@
 defmodule UrlShortener.Admin.AdminToken do
+  @moduledoc """
+  Admin authentication tokens for secure session and email verification.
+
+  This module handles various types of authentication tokens including:
+  - Session tokens for maintaining login state
+  - Email confirmation tokens
+  - Password reset tokens  
+  - Email change verification tokens
+
+  Tokens are securely hashed and have appropriate expiration times based on their context.
+  The module provides functions to generate, verify, and query tokens while ensuring
+  security best practices like preventing timing attacks and token reuse.
+  """
   use Ecto.Schema
   import Ecto.Query
   alias UrlShortener.Admin.AdminToken

@@ -1,4 +1,11 @@
 defmodule UrlShortenerWeb.AdminAuth do
+  @moduledoc """
+  Handles authentication and authorization for admin users.
+
+  Provides plugs and functions for admin login/logout, session management,
+  and protecting routes that require admin authentication.
+  """
+
   use UrlShortenerWeb, :verified_routes
 
   import Plug.Conn

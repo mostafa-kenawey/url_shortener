@@ -1,4 +1,11 @@
 defmodule UrlShortener.MetricsCollector do
+  @moduledoc """
+  GenServer that collects and processes redirect metrics in real-time.
+
+  Subscribes to redirect events via PubSub and creates metric records
+  in the database asynchronously to avoid blocking redirect responses.
+  """
+
   use GenServer
   require Logger
   alias UrlShortener.RedirectMetrics

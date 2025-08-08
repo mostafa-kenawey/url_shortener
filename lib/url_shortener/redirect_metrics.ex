@@ -1,4 +1,12 @@
 defmodule UrlShortener.RedirectMetrics do
+  @moduledoc """
+  Context module for managing redirect metrics and analytics.
+
+  Provides functions for creating, retrieving, and analyzing redirect metrics
+  data with built-in caching for performance. Tracks clicks, browser usage,
+  geographic data, and other analytics for shortened URLs.
+  """
+
   import Ecto.Query
   alias UrlShortener.Repo
   alias UrlShortener.RedirectMetrics.RedirectMetric

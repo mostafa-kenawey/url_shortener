@@ -338,8 +338,8 @@ defmodule UrlShortenerWeb.AdminDashboardLive do
     cond do
       seconds_ago < 60 -> "#{seconds_ago}s ago"
       seconds_ago < 3600 -> "#{div(seconds_ago, 60)}m ago"
-      seconds_ago < 86400 -> "#{div(seconds_ago, 3600)}h ago"
-      true -> "#{div(seconds_ago, 86400)}d ago"
+      seconds_ago < 86_400 -> "#{div(seconds_ago, 3600)}h ago"
+      true -> "#{div(seconds_ago, 86_400)}d ago"
     end
   end
 end

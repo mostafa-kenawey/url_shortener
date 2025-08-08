@@ -4,6 +4,10 @@ A modern URL shortener application built with Elixir and Phoenix, featuring real
 
 **Live Demo**: [https://url-shortener-shy-fire-2164.fly.dev/](https://url-shortener-shy-fire-2164.fly.dev/)
 
+
+### For a detailed explanation of the technical choices, refer to the [Decision Log](./DECISIONS.md).
+
+
 ## Features
 
 * URL shortening with custom slugs

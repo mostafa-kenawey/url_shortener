@@ -1,4 +1,17 @@
 defmodule UrlShortener.RedirectMetrics.RedirectMetric do
+  @moduledoc """
+  Schema for storing redirect event analytics data.
+
+  This module defines the structure for tracking individual redirect events,
+  capturing essential information for analytics:
+  - Associated link that was redirected
+  - IP address of the visitor (for geographic and usage analysis)
+  - User agent string (for device and browser analytics)
+  - Timestamp of the redirect event
+
+  Each metric record represents a single redirect event and is used to generate
+  analytics reports and insights about link usage patterns.
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

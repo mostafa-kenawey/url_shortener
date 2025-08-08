@@ -1,4 +1,17 @@
 defmodule UrlShortener.Admin.Account do
+  @moduledoc """
+  Admin account schema and changesets for user authentication.
+
+  This module defines the admin account structure and provides changesets for
+  various authentication operations including registration, login, email changes,
+  password changes, and account confirmation.
+
+  The account includes:
+  - Basic profile information (name, email)
+  - Secure password handling with bcrypt hashing
+  - Email confirmation tracking
+  - Password validation and security requirements
+  """
   use Ecto.Schema
   import Ecto.Changeset
 

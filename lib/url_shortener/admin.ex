@@ -1,4 +1,23 @@
 defmodule UrlShortener.Admin do
+  @moduledoc """
+  The Admin context provides functionality for managing admin accounts and links.
+
+  This module handles both link management (CRUD operations with caching) and
+  admin authentication workflows including registration, login, email confirmation,
+  password reset, and session management.
+
+  ## Link Management
+  - Creating, updating, and deleting shortened links
+  - Caching link data for performance
+  - Slug generation and URL mapping
+
+  ## Admin Authentication
+  - Admin account registration and login
+  - Email confirmation workflows
+  - Password reset functionality
+  - Session token management
+  - Email change workflows
+  """
   import Ecto.Query, warn: false
   alias UrlShortener.Repo
   alias UrlShortener.Admin.{Account, AdminToken, AdminNotifier, Link}

@@ -14,7 +14,7 @@ test_database_url =
     raise "TEST_DATABASE_URL is missing."
 
 config :url_shortener, UrlShortener.Repo,
-  url:  "#{test_database_url}#{System.get_env("MIX_TEST_PARTITION")}",
+  url: "#{test_database_url}#{System.get_env("MIX_TEST_PARTITION")}",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 

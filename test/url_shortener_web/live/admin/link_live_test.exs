@@ -78,11 +78,11 @@ defmodule UrlShortenerWeb.Admin.LinkLiveTest do
 
     test "handles form component saved message", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/admin/links")
-      
+
       # Simulate the message sent by FormComponent when a link is saved
       link = link_fixture()
       send(index_live.pid, {UrlShortenerWeb.Admin.LinkLive.FormComponent, {:saved, link}})
-      
+
       # Verify the link appears in the stream
       assert render(index_live) =~ link.original_url
     end

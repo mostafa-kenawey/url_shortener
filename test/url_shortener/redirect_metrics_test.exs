@@ -12,7 +12,7 @@ defmodule UrlShortener.RedirectMetricsTest do
     # Create a redirect metric
     attrs = %{
       link_id: link.id,
-      ip_address: "192.168.1.1", 
+      ip_address: "192.168.1.1",
       user_agent: "Mozilla/5.0 (Test Browser)"
     }
 
@@ -28,7 +28,7 @@ defmodule UrlShortener.RedirectMetricsTest do
   test "cannot create redirect metric with invalid link_id" do
     # Use a non-existent UUID
     invalid_uuid = Ecto.UUID.generate()
-    
+
     attrs = %{
       link_id: invalid_uuid,
       ip_address: "192.168.1.1",
@@ -45,7 +45,7 @@ defmodule UrlShortener.RedirectMetricsTest do
 
   test "deleting link cascades to redirect metrics" do
     link = link_fixture()
-    
+
     # Create a redirect metric
     attrs = %{
       link_id: link.id,
@@ -53,7 +53,7 @@ defmodule UrlShortener.RedirectMetricsTest do
       user_agent: "Mozilla/5.0 (Test Browser)"
     }
 
-    {:ok, metric} = 
+    {:ok, metric} =
       %RedirectMetric{}
       |> RedirectMetric.changeset(attrs)
       |> Repo.insert()

@@ -15,7 +15,12 @@
 
 <.back navigate={~p"/admin/links"}>Back to links</.back>
 
-<.modal :if={@live_action == :edit} id="link-modal" show on_cancel={JS.patch(~p"/admin/links/#{@link}")}>
+<.modal
+  :if={@live_action == :edit}
+  id="link-modal"
+  show
+  on_cancel={JS.patch(~p"/admin/links/#{@link}")}
+>
   <.live_component
     module={UrlShortenerWeb.Admin.LinkLive.FormComponent}
     id={@link.id}

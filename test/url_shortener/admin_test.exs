@@ -69,7 +69,9 @@ defmodule UrlShortener.AdminTest do
 
     test "verify_change_email_token_query/2 returns error for invalid token" do
       invalid_token = "invalid_token"
-      assert AdminToken.verify_change_email_token_query(invalid_token, "change:test@example.com") == :error
+
+      assert AdminToken.verify_change_email_token_query(invalid_token, "change:test@example.com") ==
+               :error
     end
   end
 end

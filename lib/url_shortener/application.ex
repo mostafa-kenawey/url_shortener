@@ -5,9 +5,6 @@ defmodule UrlShortener.Application do
 
   use Application
 
-  # Get environment at compile time
-  @environment Application.compile_env(:url_shortener, :environment, :prod)
-
   @impl true
   def start(_type, _args) do
     base_children = [
@@ -18,15 +15,18 @@ defmodule UrlShortener.Application do
       # Start the Finch HTTP client for sending emails
       {Finch, name: UrlShortener.Finch},
       # Start the cache
-      UrlShortener.Cache
+      UrlShortener.Cache,
+      # Start MetricsCollector in all environments except test
+      UrlShortener.MetricsCollector
     ]
 
-    # Add MetricsCollector only in non-test environments
-    # Use compile-time env since Mix.env() is not available in releases
-    children = case @environment do
-      :test -> base_children
-      _ -> base_children ++ [UrlShortener.MetricsCollector]
-    end
+    # Only exclude MetricsCollector in test environment
+    children =
+      if Application.get_env(:url_shortener, :environment) == :test do
+        List.delete(base_children, UrlShortener.MetricsCollector)
+      else
+        base_children
+      end
 
     # Add endpoint as the last child
     children = children ++ [UrlShortenerWeb.Endpoint]

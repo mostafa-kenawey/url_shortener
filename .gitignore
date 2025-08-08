@@ -29,3 +29,7 @@ dev/mailbox/
 .byebug_history
 .iex.exs
 fly.toml
+
+# Local testing files
+.env.act
+.env.test

@@ -26,7 +26,9 @@ defmodule UrlShortener.Admin.Link do
       nil ->
         slug = UrlShortener.Slugger.generate_unique_slug()
         put_change(changeset, :slug, slug)
-      _ -> changeset
+
+      _ ->
+        changeset
     end
   end
 end

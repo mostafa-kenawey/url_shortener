@@ -4,12 +4,15 @@ defmodule UrlShortenerWeb.RedirectController do
 
   alias UrlShortener.{Links, Cache}
 
-  @rate_limit_requests 10  # Max requests per minute
-  @rate_limit_window 60     # 60 seconds window
+  # Max requests per minute
+  @rate_limit_requests 10
+  # 60 seconds window
+  @rate_limit_window 60
 
   def show(conn, %{"slug" => slug}) do
     # Rate limiting by IP
     ip = get_client_ip(conn)
+
     case Cache.rate_limit(ip, @rate_limit_requests, @rate_limit_window) do
       {:error, :rate_limited} ->
         conn
@@ -31,6 +34,7 @@ defmodule UrlShortenerWeb.RedirectController do
       {:error, :not_found} ->
         # Cache miss, query database
         Logger.debug("Cache miss for slug: #{slug}")
+
         case Links.get_link_by_slug(slug) do
           nil ->
             conn
@@ -41,8 +45,11 @@ defmodule UrlShortenerWeb.RedirectController do
           link ->
             # Cache the result for future requests
             Cache.put_slug(slug, link.original_url)
+
             broadcast_and_redirect(conn, slug, link.original_url, ip,
-              cache_hit: false, link_id: link.id)
+              cache_hit: false,
+              link_id: link.id
+            )
         end
     end
   end
@@ -52,15 +59,19 @@ defmodule UrlShortenerWeb.RedirectController do
 
     # Only broadcast if we have link_id (from DB query, not cache)
     if link_id = opts[:link_id] do
-      Phoenix.PubSub.broadcast(
-        UrlShortener.PubSub,
-        "redirect_events",
-        {:redirect, %{
+      payload = {
+        :redirect,
+        %{
           link_id: link_id,
           ip_address: ip,
           user_agent: user_agent
-        }}
-      )
+        }
+      }
+
+      case Phoenix.PubSub.broadcast(UrlShortener.PubSub, "redirect_events", payload) do
+        :ok -> :ok
+        error -> Logger.error("Failed to broadcast redirect event: #{inspect(error)}")
+      end
     end
 
     redirect(conn, external: original_url)
@@ -74,6 +85,7 @@ defmodule UrlShortenerWeb.RedirectController do
         |> String.split(",")
         |> List.first()
         |> String.trim()
+
       [] ->
         # Fall back to remote IP
         to_string(:inet_parse.ntoa(conn.remote_ip))

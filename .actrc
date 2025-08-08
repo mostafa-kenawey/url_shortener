@@ -1,0 +1,2 @@
+# Use medium-sized runner image for better compatibility
+--platform ubuntu-20.04=catthehacker/ubuntu:act-20.04

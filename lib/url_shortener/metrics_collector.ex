@@ -11,31 +11,35 @@ defmodule UrlShortener.MetricsCollector do
 
   def init(state) do
     Logger.info(">>> Subscribing to topic: #{inspect(@topic)}")
-    Phoenix.PubSub.subscribe(UrlShortener.PubSub, @topic)
-    {:ok, state}
+
+    case Phoenix.PubSub.subscribe(UrlShortener.PubSub, @topic) do
+      :ok ->
+        {:ok, state}
+
+      error ->
+        Logger.error("Failed to subscribe to #{@topic}: #{inspect(error)}")
+        {:stop, {:subscription_failed, error}}
+    end
   end
 
   def handle_info({:redirect, payload}, state) do
-    Logger.info(">>> Received redirect event: #{inspect(payload)}")
-    
     try do
       case RedirectMetrics.create_metric(payload) do
-        {:ok, _metric} -> 
-          Logger.info(">>> Successfully created redirect metric")
-        {:error, changeset} -> 
-          Logger.error(">>> Failed to create redirect metric: #{inspect(changeset.errors)}")
+        {:ok, _metric} ->
+          :ok
+
+        {:error, changeset} ->
+          Logger.error("Failed to create redirect metric: #{inspect(changeset.errors)}")
       end
     rescue
-      exception -> 
-        Logger.error(">>> Exception creating redirect metric: #{inspect(exception)}")
-        # Don't crash the GenServer, just log the error
+      exception ->
+        Logger.error("Exception creating redirect metric: #{inspect(exception)}")
     end
-    
+
     {:noreply, state}
   end
 
-  def handle_info(msg, state) do
-    Logger.debug(">>> Unhandled message: #{inspect(msg)}")
+  def handle_info(_msg, state) do
     {:noreply, state}
   end
 end

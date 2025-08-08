@@ -25,9 +25,11 @@ defmodule UrlShortenerWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", UrlShortenerWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", UrlShortenerWeb do
+    pipe_through :api
+
+    get "/health", HealthController, :check
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:url_shortener, :dev_routes) do

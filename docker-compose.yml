@@ -1,0 +1,49 @@
+networks:
+  app_network:
+    driver: bridge
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: url_shortener_db
+    networks:
+      app_network:
+        aliases:
+          - database
+          - db
+          - postgres
+    environment:
+      POSTGRES_DB: url_shortener_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d url_shortener_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  web:
+    build: .
+    container_name: url_shortener_web
+    networks:
+      - app_network
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@database:5432/url_shortener_dev
+      SECRET_KEY_BASE: n0WGDmh5q1PqtciMiWl6CZ1Jh7pqmMCdJmS3ZRS2sRFLKW9e7JsYJ/+wZmMGoL1GD6A/yE25/ZQXstsmAeB+rA==
+      PHX_SERVER: true
+      MIX_ENV: prod
+    ports:
+      - "4000:4000"
+
+volumes:
+  postgres_data:

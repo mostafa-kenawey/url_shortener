@@ -7,7 +7,9 @@ defmodule UrlShortener.Admin do
   # Link functions with caching
   def list_links do
     case Cache.get_analytics("all_links") do
-      {:ok, links} -> links
+      {:ok, links} ->
+        links
+
       {:error, :not_found} ->
         links = Repo.all(Link)
         Cache.put_analytics("all_links", links, :timer.minutes(5))
@@ -16,7 +18,7 @@ defmodule UrlShortener.Admin do
   end
 
   def get_link!(id), do: Repo.get!(Link, id)
-  
+
   def create_link(attrs \\ %{}) do
     case %Link{} |> Link.changeset(attrs) |> Repo.insert() do
       {:ok, link} = result ->
@@ -25,12 +27,15 @@ defmodule UrlShortener.Admin do
         # Invalidate the all_links cache
         Cache.delete_analytics("all_links")
         result
-      error -> error
+
+      error ->
+        error
     end
   end
-  
+
   def update_link(%Link{} = link, attrs) do
     old_slug = link.slug
+
     case link |> Link.changeset(attrs) |> Repo.update() do
       {:ok, updated_link} = result ->
         # Update cache if slug changed
@@ -41,13 +46,16 @@ defmodule UrlShortener.Admin do
           # Update existing cache entry
           Cache.put_slug(updated_link.slug, updated_link.original_url)
         end
+
         # Invalidate the all_links cache
         Cache.delete_analytics("all_links")
         result
-      error -> error
+
+      error ->
+        error
     end
   end
-  
+
   def delete_link(%Link{} = link) do
     case Repo.delete(link) do
       {:ok, deleted_link} = result ->
@@ -56,18 +64,23 @@ defmodule UrlShortener.Admin do
         # Invalidate the all_links cache
         Cache.delete_analytics("all_links")
         result
-      error -> error
+
+      error ->
+        error
     end
   end
-  
+
   def change_link(%Link{} = link, attrs \\ %{}), do: Link.changeset(link, attrs)
 
   # Admin account functions
   def get_admin_by_email(email) when is_binary(email), do: Repo.get_by(Account, email: email)
   def get_admin!(id), do: Repo.get!(Account, id)
-  def register_admin(attrs), do: %Account{} |> Account.registration_changeset(attrs) |> Repo.insert()
 
-  def get_admin_by_email_and_password(email, password) when is_binary(email) and is_binary(password) do
+  def register_admin(attrs),
+    do: %Account{} |> Account.registration_changeset(attrs) |> Repo.insert()
+
+  def get_admin_by_email_and_password(email, password)
+      when is_binary(email) and is_binary(password) do
     admin = Repo.get_by(Account, email: email)
     if Account.valid_password?(admin, password), do: admin
   end
@@ -76,10 +89,14 @@ defmodule UrlShortener.Admin do
     Account.registration_changeset(admin, attrs, hash_password: false, validate_email: false)
   end
 
-  def change_admin_email(admin, attrs \\ %{}), do: Account.email_changeset(admin, attrs, validate_email: false)
+  def change_admin_email(admin, attrs \\ %{}),
+    do: Account.email_changeset(admin, attrs, validate_email: false)
 
   def apply_admin_email(admin, password, attrs) do
-    admin |> Account.email_changeset(attrs) |> Account.validate_current_password(password) |> Ecto.Changeset.apply_action(:update)
+    admin
+    |> Account.email_changeset(attrs)
+    |> Account.validate_current_password(password)
+    |> Ecto.Changeset.apply_action(:update)
   end
 
   def update_admin_email(admin, token) do
@@ -105,7 +122,11 @@ defmodule UrlShortener.Admin do
     |> Ecto.Multi.delete_all(:tokens, AdminToken.by_admin_and_contexts_query(admin, [context]))
   end
 
-  def deliver_admin_update_email_instructions(%Account{} = admin, current_email, update_email_url_fun)
+  def deliver_admin_update_email_instructions(
+        %Account{} = admin,
+        current_email,
+        update_email_url_fun
+      )
       when is_function(update_email_url_fun, 1) do
     {encoded_token, admin_token} = AdminToken.build_email_token(admin, "change:#{current_email}")
 
@@ -180,7 +201,11 @@ defmodule UrlShortener.Admin do
       when is_function(reset_password_url_fun, 1) do
     {encoded_token, admin_token} = AdminToken.build_email_token(admin, "reset_password")
     Repo.insert!(admin_token)
-    AdminNotifier.deliver_reset_password_instructions(admin, reset_password_url_fun.(encoded_token))
+
+    AdminNotifier.deliver_reset_password_instructions(
+      admin,
+      reset_password_url_fun.(encoded_token)
+    )
   end
 
   def get_admin_by_reset_password_token(token) do

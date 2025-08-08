@@ -70,6 +70,9 @@ defmodule UrlShortener.MixProject do
       {:bandit, "~> 1.5"},
       {:cachex, "~> 3.6"},
       {:excoveralls, "~> 0.14", only: :test},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false},
+      {:mix_audit, "~> 2.0", only: [:dev, :test], runtime: false},
       {:lazy_html, ">= 0.1.0", only: :test}
     ]
   end

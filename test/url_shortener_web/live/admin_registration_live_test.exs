@@ -42,7 +42,9 @@ defmodule UrlShortenerWeb.AdminRegistrationLiveTest do
       result =
         lv
         |> element("#registration_form")
-        |> render_change(admin: %{"name" => "Valid Name", "email" => "valid@example.com", "password" => "short"})
+        |> render_change(
+          admin: %{"name" => "Valid Name", "email" => "valid@example.com", "password" => "short"}
+        )
 
       assert result =~ "should be at least 12 character"
     end
@@ -52,10 +54,13 @@ defmodule UrlShortenerWeb.AdminRegistrationLiveTest do
 
       # Test with all valid data (covers valid changeset branch)
       email = unique_admin_email()
+
       result =
         lv
         |> element("#registration_form")
-        |> render_change(admin: %{"name" => "Valid Name", "email" => email, "password" => "valid_password_123"})
+        |> render_change(
+          admin: %{"name" => "Valid Name", "email" => email, "password" => "valid_password_123"}
+        )
 
       # Should not show any error messages
       refute result =~ "should be at least"

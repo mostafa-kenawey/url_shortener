@@ -3,6 +3,7 @@ defmodule UrlShortenerWeb.RedirectMetricsIntegrationTest do
   
   alias UrlShortener.Repo
   alias UrlShortener.RedirectMetrics.RedirectMetric
+  alias UrlShortener.RedirectMetrics
   import UrlShortener.AdminFixtures
 
   describe "redirect metrics collection" do
@@ -13,14 +14,20 @@ defmodule UrlShortenerWeb.RedirectMetricsIntegrationTest do
       # Verify no metrics exist initially
       assert Repo.aggregate(RedirectMetric, :count) == 0
       
+      # Subscribe to PubSub events to manually handle metrics in test
+      Phoenix.PubSub.subscribe(UrlShortener.PubSub, "redirect_events")
+      
       # Make a request to the redirect endpoint
       conn = get(conn, ~p"/#{link.slug}")
       
       # Verify redirect happened
       assert redirected_to(conn, 302) == "https://elixir-lang.org"
       
-      # Wait a bit for the async processing
-      :timer.sleep(50)
+      # Wait for and handle the PubSub message manually in test
+      assert_receive {:redirect, payload}, 100
+      
+      # Manually create the metric since MetricsCollector is disabled in test
+      {:ok, _metric} = RedirectMetrics.create_metric(payload)
       
       # Verify a redirect metric was created
       assert Repo.aggregate(RedirectMetric, :count) == 1

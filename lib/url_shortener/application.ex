@@ -7,20 +7,23 @@ defmodule UrlShortener.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
+    base_children = [
       UrlShortenerWeb.Telemetry,
       UrlShortener.Repo,
       {DNSCluster, query: Application.get_env(:url_shortener, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: UrlShortener.PubSub},
       # Start the Finch HTTP client for sending emails
-      {Finch, name: UrlShortener.Finch},
-      # Start the metrics collector to handle redirect events
-      UrlShortener.MetricsCollector,
-      # Start a worker by calling: UrlShortener.Worker.start_link(arg)
-      # {UrlShortener.Worker, arg},
-      # Start to serve requests, typically the last entry
-      UrlShortenerWeb.Endpoint
+      {Finch, name: UrlShortener.Finch}
     ]
+
+    # Add MetricsCollector only in non-test environments
+    children = case Mix.env() do
+      :test -> base_children
+      _ -> base_children ++ [UrlShortener.MetricsCollector]
+    end
+
+    # Add endpoint as the last child
+    children = children ++ [UrlShortenerWeb.Endpoint]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

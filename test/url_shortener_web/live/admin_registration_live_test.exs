@@ -46,6 +46,21 @@ defmodule UrlShortenerWeb.AdminRegistrationLiveTest do
 
       assert result =~ "should be at least 12 character"
     end
+
+    test "form validation with all valid data", %{conn: conn} do
+      {:ok, lv, _html} = live(conn, ~p"/admin/register")
+
+      # Test with all valid data (covers valid changeset branch)
+      email = unique_admin_email()
+      result =
+        lv
+        |> element("#registration_form")
+        |> render_change(admin: %{"name" => "Valid Name", "email" => email, "password" => "valid_password_123"})
+
+      # Should not show any error messages
+      refute result =~ "should be at least"
+      refute result =~ "must have the @ sign"
+    end
   end
 
   describe "register admin" do
